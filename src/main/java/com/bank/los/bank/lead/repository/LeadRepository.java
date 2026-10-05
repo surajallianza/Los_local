@@ -1,16 +1,38 @@
-package com.bank.los.bank.lead.repository;
+package com.example.demo.lead.repository;
 
-import com.bank.los.bank.lead.entity.Lead;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.example.demo.lead.model.Lead;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
+/**
+ * Spring Data JPA Repository for Lead entity, persisting into SQLite database table leads.
+ */
 @Repository
-public interface LeadRepository extends JpaRepository<Lead, Long> {
-    Optional<Lead> findByLeadNumber(String leadNumber);
-    Page<Lead> findByStatus(String status, Pageable pageable);
-    Page<Lead> findByBranchId(Long branchId, Pageable pageable);
+public interface LeadRepository extends JpaRepository<Lead, String> {
+
+    @Override
+    <S extends Lead> S save(S entity);
+
+    @Override
+    Optional<Lead> findById(String leadId);
+
+    @Override
+    List<Lead> findAll();
+
+    List<Lead> findByLeadIdStartingWithOrderByLeadIdDesc(String prefix);
+
+    boolean existsByMobileNumber(String mobileNumber);
+
+    boolean existsByPanNumber(String panNumber);
+
+    boolean existsByAadhaarNumber(String aadhaarNumber);
+
+    Optional<Lead> findByMobileNumber(String mobileNumber);
+
+    Optional<Lead> findByPanNumber(String panNumber);
+
+    Optional<Lead> findByAadhaarNumber(String aadhaarNumber);
 }

@@ -1,59 +1,165 @@
-package com.bank.los.bank.lead.controller;
+package com.example.demo.lead.controller;
 
-import com.bank.los.bank.lead.dto.CreateLeadRequest;
-import com.bank.los.bank.lead.dto.LeadResponse;
-import com.bank.los.bank.lead.service.LeadService;
-import com.bank.los.common.response.ApiResponse;
-import com.bank.los.common.response.PageResponse;
-import com.bank.los.security.UserPrincipal;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
+import com.example.demo.lead.dto.LeadAssignRequest;
+import com.example.demo.lead.dto.LeadAssignResponse;
+import com.example.demo.lead.dto.LeadRequest;
+import com.example.demo.lead.exception.ValidationException;
+import com.example.demo.lead.model.CsvImportResult;
+import com.example.demo.lead.model.Lead;
+import com.example.demo.lead.service.LeadService;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+
+/**
+ * REST Controller exposing the Lead management API backed by SQLite database.
+ */
 @RestController
-@RequestMapping("/api/v1/leads")
-@RequiredArgsConstructor
-@Tag(name = "Loan Leads", description = "Endpoints for loan lead capture and routing")
-@SecurityRequirement(name = "BearerAuth")
+@RequestMapping("/api/leads")
 public class LeadController {
 
     private final LeadService leadService;
 
-    @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'MAKER', 'CHECKER', 'VIEWER')")
-    @Operation(summary = "Get paginated list of leads for the bank organization")
-    public ResponseEntity<ApiResponse<PageResponse<LeadResponse>>> getLeads(
-            @AuthenticationPrincipal UserPrincipal principal,
-            @PageableDefault(size = 20) Pageable pageable) {
-        PageResponse<LeadResponse> leads = leadService.getLeads(principal, pageable);
-        return ResponseEntity.ok(ApiResponse.ok(leads));
+    public LeadController(LeadService leadService) {
+        this.leadService = leadService;
     }
 
-    @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'MAKER', 'CHECKER', 'VIEWER')")
-    @Operation(summary = "Get lead details by ID")
-    public ResponseEntity<ApiResponse<LeadResponse>> getLeadById(
-            @AuthenticationPrincipal UserPrincipal principal,
-            @PathVariable Long id) {
-        LeadResponse lead = leadService.getLeadById(principal, id);
-        return ResponseEntity.ok(ApiResponse.ok(lead));
-    }
-
+    /**
+     * Single REST API endpoint to create a Lead.
+     * Collects all fields from multi-step lead forms in one request DTO,
+     * validates, duplicate-checks, and saves within a single transaction.
+     * Automatically sets leadStatus = NEW.
+     *
+     * @param request unified LeadRequest payload containing customer, employment, loan, and sourcing fields
+     * @return 201 Created with the saved Lead object containing generated leadId
+     */
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'MAKER')")
-    @Operation(summary = "Capture / create a new loan lead")
-    public ResponseEntity<ApiResponse<LeadResponse>> createLead(
-            @AuthenticationPrincipal UserPrincipal principal,
-            @Valid @RequestBody CreateLeadRequest request) {
-        LeadResponse lead = leadService.createLead(principal, request);
-        return ResponseEntity.ok(ApiResponse.ok("Lead created successfully", lead));
+    public ResponseEntity<Lead> createLead(@RequestBody LeadRequest request) {
+        Lead savedLead = leadService.createLead(request);
+        return new ResponseEntity<>(savedLead, HttpStatus.CREATED);
+    }
+
+    /**
+     * Updates an existing lead's details (customer details, employment details,
+     * loan details, sourcing channel, etc.). System-managed fields cannot be changed.
+     *
+     * @param leadId Lead identifier
+     * @param request payload with updated fields
+     * @return 200 OK with updated Lead
+     */
+    @PutMapping("/{leadId}")
+    public ResponseEntity<Lead> updateLead(@PathVariable String leadId, @RequestBody LeadRequest request) {
+        Lead updatedLead = leadService.updateLead(leadId, request);
+        return ResponseEntity.ok(updatedLead);
+    }
+
+    /**
+     * Assigns a lead to an active employee with MAKER role.
+     * Updates assignedEmployeeId, sets leadStatus = ASSIGNED, stores timestamp.
+     *
+     * @param leadId Lead identifier
+     * @param request JSON payload containing employeeId
+     * @return 200 OK with LeadAssignResponse
+     */
+    @PutMapping("/{leadId}/assign")
+    public ResponseEntity<LeadAssignResponse> assignLead(
+            @PathVariable String leadId,
+            @RequestBody(required = false) LeadAssignRequest request) {
+        LeadAssignResponse response = leadService.assignLead(leadId, request);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Retrieve a lead by Lead ID.
+     *
+     * @param leadId the Lead ID
+     * @return 200 OK with Lead or 404 Not Found
+     */
+    @GetMapping("/{leadId}")
+    public ResponseEntity<Lead> getLeadById(@PathVariable String leadId) {
+        return leadService.getLeadById(leadId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    /**
+     * Retrieve all leads.
+     *
+     * @return 200 OK with list of leads
+     */
+    @GetMapping
+    public ResponseEntity<List<Lead>> getAllLeads() {
+        return ResponseEntity.ok(leadService.getAllLeads());
+    }
+
+    /**
+     * Preview the next auto-generated Lead ID.
+     *
+     * @return 200 OK with next Lead ID string
+     */
+    @GetMapping("/next-id")
+    public ResponseEntity<String> getNextLeadId() {
+        return ResponseEntity.ok(leadService.generateNextLeadId());
+    }
+
+    /**
+     * Import multiple leads in bulk from a CSV file.
+     * Accepts multipart/form-data ("file" parameter) or direct raw CSV stream.
+     *
+     * @param file optional multipart CSV file
+     * @param request HTTP request for stream fallback
+     * @return 200 OK with CsvImportResult summary
+     */
+    @PostMapping(value = "/import", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, "text/csv", MediaType.APPLICATION_OCTET_STREAM_VALUE})
+    public ResponseEntity<CsvImportResult> importLeads(
+            @RequestParam(value = "file", required = false) MultipartFile file,
+            HttpServletRequest request) throws IOException {
+        InputStream inputStream;
+        if (file != null) {
+            if (file.isEmpty()) {
+                throw new ValidationException("Uploaded CSV file is empty");
+            }
+            inputStream = file.getInputStream();
+        } else {
+            inputStream = request.getInputStream();
+        }
+        CsvImportResult result = leadService.importLeadsFromCsv(inputStream);
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * Export all existing leads from SQLite database into an RFC-4180 CSV file.
+     *
+     * @return 200 OK with CSV file attachment
+     */
+    @GetMapping(value = "/export", produces = "text/csv")
+    public ResponseEntity<byte[]> exportLeads() {
+        byte[] csvData = leadService.exportLeadsToCsv();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"leads.csv\"")
+                .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
+                .body(csvData);
+    }
+
+    /**
+     * Download pre-configured sample CSV template demonstrating valid rows for bulk upload.
+     *
+     * @return 200 OK with sample CSV file attachment
+     */
+    @GetMapping(value = "/sample-csv", produces = "text/csv")
+    public ResponseEntity<byte[]> getSampleCsv() {
+        byte[] csvData = leadService.getSampleCsv();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"sample_leads.csv\"")
+                .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
+                .body(csvData);
     }
 }
