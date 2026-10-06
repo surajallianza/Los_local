@@ -1,3 +1,5 @@
+
+
 package com.bank.los.db.init;
 
 import com.bank.los.administration.master.entity.InternalUser;
@@ -102,11 +104,11 @@ public class DatabaseSeeder implements CommandLineRunner {
                         .build()));
 
         // Sample organizations
-        Organization hdfc = organizationRepository.findByCode("HDFC01")
+        Organization hdfc = organizationRepository.findByBankCode("HDFC01")
                 .orElseGet(() -> organizationRepository.save(Organization.builder()
-                        .institutionName("HDFC Bank")
-                        .institutionCode("HDFC01")
-                        .institutionType("BANK")
+                        .bankName("HDFC Bank")
+                        .bankCode("HDFC01")
+                        .bankType("BANK")
                         .status("ACTIVE")
                         .contactEmail("contact@hdfcbank.com")
                         .contactPhone("+912261606161")
@@ -115,11 +117,11 @@ public class DatabaseSeeder implements CommandLineRunner {
                         .dbPort(5432)
                         .build()));
 
-        Organization bajaj = organizationRepository.findByCode("BAJAJ02")
+        Organization bajaj = organizationRepository.findByBankCode("BAJAJ02")
                 .orElseGet(() -> organizationRepository.save(Organization.builder()
-                        .institutionName("Bajaj Finance Limited")
-                        .institutionCode("BAJAJ02")
-                        .institutionType("NBFC")
+                        .bankName("Bajaj Finance Limited")
+                        .bankCode("BAJAJ02")
+                        .bankType("NBFC")
                         .status("ACTIVE")
                         .contactEmail("customercare@bajajfinserv.in")
                         .contactPhone("+912071576403")

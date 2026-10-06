@@ -211,31 +211,42 @@ public class UserService {
 
         // 4. Resolve Branch in organization DB
         Branch loginBranch = null;
-        if (Boolean.TRUE.equals(request.getMultiBranchAccess())) {
-            if (request.getLoginBranchId() != null) {
-                loginBranch = branchRepository.findById(request.getLoginBranchId()).orElse(null);
-            }
-        } else {
-            if (request.getLoginBranchId() != null) {
-                loginBranch = branchRepository.findById(request.getLoginBranchId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Branch", "id", request.getLoginBranchId()));
-            } else {
-                loginBranch = branchRepository.findAll().stream().findFirst()
-                        .orElseGet(() -> branchRepository.save(Branch.builder()
-                                .name(org.getName() + " Main Branch")
-                                .code(org.getCode() + "-BR-01")
-                                .address("Headquarters")
-                                .city("Mumbai")
-                                .state("Maharashtra")
-                                .pincode("400001")
-                                .status("ACTIVE")
-                                .build()));
-            }
+        Long targetBranchId = request.getLoginBranchId();
+        String branchIdentifier = request.getLoginBranch();
+
+        if (targetBranchId == null && branchIdentifier != null && !branchIdentifier.isBlank()) {
+            try {
+                targetBranchId = Long.parseLong(branchIdentifier.trim());
+            } catch (NumberFormatException ignored) {}
+        }
+
+        if (targetBranchId != null) {
+            loginBranch = branchRepository.findById(targetBranchId).orElse(null);
+        }
+        if (loginBranch == null && branchIdentifier != null && !branchIdentifier.isBlank()) {
+            loginBranch = branchRepository.findByName(branchIdentifier.trim())
+                    .or(() -> branchRepository.findByCode(branchIdentifier.trim()))
+                    .orElse(null);
+        }
+
+        if (loginBranch == null) {
+            loginBranch = branchRepository.findAll().stream().findFirst()
+                    .orElseGet(() -> branchRepository.save(Branch.builder()
+                            .name(org.getName() + " Main Branch")
+                            .code(org.getCode() + "-BR-01")
+                            .address("Headquarters")
+                            .city("Mumbai")
+                            .state("Maharashtra")
+                            .pincode("400001")
+                            .status("ACTIVE")
+                            .build()));
         }
 
         String empNo = request.getEmpNo();
         if (empNo == null || empNo.isBlank()) {
             empNo = "EMP-" + orgCode + "-" + UUID.randomUUID().toString().substring(0, 6).toUpperCase();
+        } else {
+            empNo = empNo.trim();
         }
 
         String initialStatus = request.getStatus();
@@ -273,7 +284,7 @@ public class UserService {
                 .logoutTime(request.getLogoutTime())
                 .inactiveSessionTimeout(request.getInactiveSessionTimeout() != null ? request.getInactiveSessionTimeout() : 1800)
                 .lastLoginDate(request.getLastLoginDate())
-                .noOfBadLogins(0)
+                .noOfBadLogins(request.getNoOfBadLogins() != null ? request.getNoOfBadLogins() : 0)
                 .verifiedBy(request.getVerifiedBy())
                 .verifiedDate(request.getVerifiedDate())
                 .modifiedBy(request.getModifiedBy())

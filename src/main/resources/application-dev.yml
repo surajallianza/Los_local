@@ -18,7 +18,7 @@ master:
   datasource:
     url: ${MASTER_DB_URL:jdbc:postgresql://localhost:5432/los_master_db}
     username: ${MASTER_DB_USERNAME:postgres}
-    password: ${MASTER_DB_PASSWORD:postgres}
+    password: ${MASTER_DB_PASSWORD:root}
     driver-class-name: org.postgresql.Driver
 
 bank:
@@ -27,7 +27,7 @@ bank:
     default-host: ${BANK_DB_HOST:${TENANT_DB_HOST:localhost}}
     default-port: ${BANK_DB_PORT:${TENANT_DB_PORT:5432}}
     username: ${BANK_DB_USERNAME:${TENANT_DB_USERNAME:postgres}}
-    password: ${BANK_DB_PASSWORD:${TENANT_DB_PASSWORD:postgres}}
+    password: ${BANK_DB_PASSWORD:${TENANT_DB_PASSWORD:root}}
 
 tenant:
   datasource:
@@ -35,7 +35,7 @@ tenant:
     default-host: ${TENANT_DB_HOST:${BANK_DB_HOST:localhost}}
     default-port: ${TENANT_DB_PORT:${BANK_DB_PORT:5432}}
     username: ${TENANT_DB_USERNAME:${BANK_DB_USERNAME:postgres}}
-    password: ${TENANT_DB_PASSWORD:${BANK_DB_PASSWORD:postgres}}
+    password: ${TENANT_DB_PASSWORD:${BANK_DB_PASSWORD:root}}
 
 organization:
   datasource:
@@ -43,6 +43,6 @@ organization:
     default-host: ${ORGANIZATION_DB_HOST:${TENANT_DB_HOST:${BANK_DB_HOST:localhost}}}
     default-port: ${ORGANIZATION_DB_PORT:${TENANT_DB_PORT:${BANK_DB_PORT:5432}}}
     username: ${ORGANIZATION_DB_USERNAME:${TENANT_DB_USERNAME:${BANK_DB_USERNAME:postgres}}}
-    password: ${ORGANIZATION_DB_PASSWORD:${TENANT_DB_PASSWORD:${BANK_DB_PASSWORD:postgres}}}
+    password: ${ORGANIZATION_DB_PASSWORD:${TENANT_DB_PASSWORD:${BANK_DB_PASSWORD:root}}}
 
 

@@ -132,11 +132,31 @@ public class BankDataSourceProvider {
             populator.setContinueOnError(true);
             populator.setIgnoreFailedDrops(true);
             populator.populate(conn);
+            migrateLegacyLeadColumns(conn);
         } catch (Exception e) {
             log.debug("Bank DB schema populate notice for {}: {}", dbName, e.getMessage());
         }
 
         return ds;
+    }
+
+    private void migrateLegacyLeadColumns(Connection conn) {
+        try (Statement stmt = conn.createStatement()) {
+            java.sql.DatabaseMetaData meta = conn.getMetaData();
+            try (ResultSet rs = meta.getTables(null, "customer", "leads", new String[]{"TABLE"})) {
+                if (rs.next()) {
+                    try { stmt.execute("ALTER TABLE customer.leads ALTER COLUMN created_at DROP NOT NULL"); } catch (Exception ignored) {}
+                    try { stmt.execute("ALTER TABLE customer.leads ALTER COLUMN created_at SET DEFAULT now()"); } catch (Exception ignored) {}
+                    try { stmt.execute("ALTER TABLE customer.leads ALTER COLUMN updated_at DROP NOT NULL"); } catch (Exception ignored) {}
+                    try { stmt.execute("ALTER TABLE customer.leads ALTER COLUMN updated_at SET DEFAULT now()"); } catch (Exception ignored) {}
+                    try { stmt.execute("ALTER TABLE customer.leads ALTER COLUMN customer_name DROP NOT NULL"); } catch (Exception ignored) {}
+                    try { stmt.execute("ALTER TABLE customer.leads ALTER COLUMN phone DROP NOT NULL"); } catch (Exception ignored) {}
+                    try { stmt.execute("ALTER TABLE customer.leads ALTER COLUMN lead_number DROP NOT NULL"); } catch (Exception ignored) {}
+                }
+            }
+        } catch (Exception e) {
+            log.debug("Note: lead columns migration notice: {}", e.getMessage());
+        }
     }
 
     private void ensurePostgreSqlDatabaseExists(String masterDbUrl, String targetDbName, String username, String password) {

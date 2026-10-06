@@ -17,9 +17,6 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
 
     Optional<Organization> findByBankCode(String bankCode);
 
-    @Query("SELECT o FROM Organization o WHERE o.bankCode = :institutionCode")
-    Optional<Organization> findByInstitutionCode(@Param("institutionCode") String institutionCode);
-
     Optional<Organization> findByUuid(UUID uuid);
 
     Optional<Organization> findByDbName(String dbName);
@@ -28,9 +25,6 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
     boolean existsByCode(@Param("code") String code);
 
     boolean existsByBankCode(String bankCode);
-
-    @Query("SELECT CASE WHEN COUNT(o) > 0 THEN true ELSE false END FROM Organization o WHERE o.bankCode = :institutionCode")
-    boolean existsByInstitutionCode(@Param("institutionCode") String institutionCode);
 
     boolean existsByDbName(String dbName);
 }

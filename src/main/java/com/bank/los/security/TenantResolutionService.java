@@ -86,7 +86,7 @@ public class TenantResolutionService {
                 org = organizationRepository.findByUuid(orgUuid).orElse(null);
             }
             if (org == null && orgCode != null && !orgCode.isBlank()) {
-                org = organizationRepository.findByInstitutionCode(orgCode)
+                org = organizationRepository.findByBankCode(orgCode)
                         .or(() -> organizationRepository.findByCode(orgCode))
                         .orElse(null);
             }
@@ -120,8 +120,8 @@ public class TenantResolutionService {
             if (org.getId() != null) {
                 orgIdToDbCache.put(org.getId(), org.getDbName());
             }
-            if (org.getInstitutionCode() != null) {
-                orgCodeToDbCache.put(org.getInstitutionCode().toUpperCase(), org.getDbName());
+            if (org.getBankCode() != null) {
+                orgCodeToDbCache.put(org.getBankCode().toUpperCase(), org.getDbName());
             }
             if (org.getUuid() != null) {
                 orgUuidToDbCache.put(org.getUuid(), org.getDbName());

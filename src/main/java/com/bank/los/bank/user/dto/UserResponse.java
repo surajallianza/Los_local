@@ -179,5 +179,25 @@ public class UserResponse {
     public String getFullName() {
         return name;
     }
+
+    @JsonProperty("employee_id")
+    public String getEmployeeId() {
+        return empNo;
+    }
+
+    @JsonProperty("date_of_birth")
+    public LocalDate getDateOfBirth() {
+        return dob;
+    }
+
+    @JsonProperty("allow_multibranch")
+    public Boolean getAllowMultibranch() {
+        return multiBranchAccess;
+    }
+
+    @JsonProperty("allow_login_in_holidays")
+    public Boolean getAllowLoginInHolidays() {
+        return loginOnHolidays;
+    }
 }
 

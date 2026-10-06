@@ -43,6 +43,10 @@ public final class SecurityConstants {
             "/api-docs/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
-            "/actuator/**"
+            "/actuator/**",
+            "/api/leads/**",
+            "/api/v1/leads/**",
+            "/index.html",
+            "/sample_leads.csv"
     };
 }

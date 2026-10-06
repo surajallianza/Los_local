@@ -19,6 +19,9 @@ import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
@@ -75,6 +78,7 @@ public class PersistenceConfig {
                 populator.setIgnoreFailedDrops(true);
                 populator.populate(conn);
             }
+            migrateLegacyInstitutionColumns(conn);
         } catch (Exception e) {
             // Ignore if already created or offline during build
         }
@@ -180,4 +184,84 @@ public class PersistenceConfig {
     }
 
     public record ConnectionDetails(String jdbcUrl, String username, String password) {}
+
+    private void migrateLegacyInstitutionColumns(java.sql.Connection conn) {
+        try (java.sql.Statement stmt = conn.createStatement()) {
+            // Drop obsolete trigger/function that referenced legacy institution_code
+            try {
+                stmt.execute("DROP FUNCTION IF EXISTS organization.sync_org_columns() CASCADE");
+            } catch (Exception e) {
+                log.debug("Note: Trigger sync_org_columns drop: {}", e.getMessage());
+            }
+
+            java.sql.DatabaseMetaData meta = conn.getMetaData();
+
+            // If legacy 'code' column exists on PostgreSQL/H2, ensure it does not block inserts
+            if (columnExists(meta, "organizations", "code")) {
+                try {
+                    stmt.execute("ALTER TABLE organization.organizations ALTER COLUMN code DROP NOT NULL");
+                } catch (Exception ignored) {}
+            }
+
+            boolean hasInstCode = columnExists(meta, "organizations", "institution_code");
+            boolean hasBankCode = columnExists(meta, "organizations", "bank_code");
+            if (hasInstCode && !hasBankCode) {
+                stmt.execute("ALTER TABLE organization.organizations RENAME COLUMN institution_code TO bank_code");
+            } else if (hasInstCode && hasBankCode) {
+                stmt.execute("UPDATE organization.organizations SET bank_code = COALESCE(bank_code, institution_code) WHERE bank_code IS NULL");
+                stmt.execute("ALTER TABLE organization.organizations DROP COLUMN institution_code");
+            }
+
+            boolean hasInstName = columnExists(meta, "organizations", "institution_name");
+            boolean hasBankName = columnExists(meta, "organizations", "bank_name");
+            if (hasInstName && !hasBankName) {
+                stmt.execute("ALTER TABLE organization.organizations RENAME COLUMN institution_name TO bank_name");
+            } else if (hasInstName && hasBankName) {
+                stmt.execute("UPDATE organization.organizations SET bank_name = COALESCE(bank_name, institution_name) WHERE bank_name IS NULL");
+                stmt.execute("ALTER TABLE organization.organizations DROP COLUMN institution_name");
+            }
+
+            boolean hasInstType = columnExists(meta, "organizations", "institution_type");
+            boolean hasBankType = columnExists(meta, "organizations", "bank_type");
+            if (hasInstType && !hasBankType) {
+                stmt.execute("ALTER TABLE organization.organizations RENAME COLUMN institution_type TO bank_type");
+            } else if (hasInstType && hasBankType) {
+                stmt.execute("UPDATE organization.organizations SET bank_type = COALESCE(bank_type, institution_type) WHERE bank_type IS NULL");
+                stmt.execute("ALTER TABLE organization.organizations DROP COLUMN institution_type");
+            }
+
+            // Ensure cin, direct_clearing_number, micr_code, gst_no, license_number exist and don't conflict
+            try {
+                boolean hasCin = columnExists(meta, "organizations", "cin");
+                boolean hasCinNumber = columnExists(meta, "organizations", "cin_number");
+                if (hasCinNumber && !hasCin) {
+                    stmt.execute("ALTER TABLE organization.organizations RENAME COLUMN cin_number TO cin");
+                } else if (!hasCin) {
+                    stmt.execute("ALTER TABLE organization.organizations ADD COLUMN IF NOT EXISTS cin VARCHAR(50)");
+                }
+                stmt.execute("ALTER TABLE organization.organizations ADD COLUMN IF NOT EXISTS cin_number VARCHAR(50)");
+                stmt.execute("ALTER TABLE organization.organizations ADD COLUMN IF NOT EXISTS direct_clearing_number VARCHAR(50)");
+                stmt.execute("ALTER TABLE organization.organizations ADD COLUMN IF NOT EXISTS micr_code VARCHAR(9)");
+                stmt.execute("ALTER TABLE organization.organizations ADD COLUMN IF NOT EXISTS gst_no VARCHAR(50)");
+                stmt.execute("ALTER TABLE organization.organizations ADD COLUMN IF NOT EXISTS license_number VARCHAR(100)");
+            } catch (Exception e) {
+                log.debug("Additional organization columns migration note: {}", e.getMessage());
+            }
+        } catch (Exception e) {
+            log.debug("Institution to bank column migration note: {}", e.getMessage());
+        }
+    }
+
+    private boolean columnExists(java.sql.DatabaseMetaData meta, String tableName, String columnName) {
+        try (java.sql.ResultSet rs = meta.getColumns(null, null, tableName, columnName)) {
+            if (rs.next()) return true;
+        } catch (Exception ignored) {}
+        try (java.sql.ResultSet rs = meta.getColumns(null, "organization", tableName, columnName)) {
+            if (rs.next()) return true;
+        } catch (Exception ignored) {}
+        try (java.sql.ResultSet rs = meta.getColumns(null, null, tableName.toUpperCase(), columnName.toUpperCase())) {
+            if (rs.next()) return true;
+        } catch (Exception ignored) {}
+        return false;
+    }
 }

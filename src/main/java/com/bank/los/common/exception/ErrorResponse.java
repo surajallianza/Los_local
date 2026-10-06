@@ -22,6 +22,7 @@ public class ErrorResponse {
     private String message;
     private String path;
     private Map<String, String> validationErrors;
+    private java.util.List<String> errors;
 
     @Builder.Default
     private LocalDateTime timestamp = LocalDateTime.now();

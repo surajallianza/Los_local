@@ -328,9 +328,9 @@ public class AdministrationLookupService {
         List<Organization> orgs = organizationRepository.findAll();
         for (Organization org : orgs) {
             try {
-                syncMasterLookupsToBank(org.getInstitutionCode());
+                syncMasterLookupsToBank(org.getBankCode());
             } catch (Exception e) {
-                log.warn("Failed to sync lookups to org {}: {}", org.getInstitutionCode(), e.getMessage());
+                log.warn("Failed to sync lookups to org {}: {}", org.getBankCode(), e.getMessage());
             }
         }
     }

@@ -143,8 +143,8 @@ public class AdministrationRbacService {
             List<PermissionOverrideResponse> overrides = bankRbacService.getAllPermissionOverrides(org.getDbName());
 
             return BankRbacSummaryResponse.builder()
-                    .bankCode(org.getInstitutionCode())
-                    .institutionName(org.getInstitutionName())
+                    .bankCode(org.getBankCode())
+                    .bankName(org.getBankName())
                     .dbName(org.getDbName())
                     .roles(roles)
                     .designations(designations)
@@ -224,9 +224,9 @@ public class AdministrationRbacService {
 
         for (Organization org : orgs) {
             try {
-                syncPermissionsToBank(org.getInstitutionCode());
+                syncPermissionsToBank(org.getBankCode());
             } catch (Exception ex) {
-                log.warn("Failed to sync permissions to bank {}: {}", org.getInstitutionCode(), ex.getMessage());
+                log.warn("Failed to sync permissions to bank {}: {}", org.getBankCode(), ex.getMessage());
             }
         }
     }

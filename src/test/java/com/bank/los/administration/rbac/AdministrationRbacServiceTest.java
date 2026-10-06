@@ -107,8 +107,8 @@ class AdministrationRbacServiceTest {
     void testGetBankRbacSummary() {
         Organization org = Organization.builder()
                 .id(1L)
-                .institutionCode("HDFC01")
-                .institutionName("HDFC Bank")
+                .bankCode("HDFC01")
+                .bankName("HDFC Bank")
                 .dbName("los_hdfc01_db")
                 .build();
 
@@ -121,7 +121,7 @@ class AdministrationRbacServiceTest {
 
         assertNotNull(summary);
         assertEquals("HDFC01", summary.getBankCode());
-        assertEquals("HDFC Bank", summary.getInstitutionName());
+        assertEquals("HDFC Bank", summary.getBankName());
         assertEquals("los_hdfc01_db", summary.getDbName());
     }
 
@@ -130,7 +130,7 @@ class AdministrationRbacServiceTest {
     void testSyncPermissionsToBank() {
         Organization org = Organization.builder()
                 .id(1L)
-                .institutionCode("HDFC01")
+                .bankCode("HDFC01")
                 .dbName("los_hdfc01_db")
                 .build();
 

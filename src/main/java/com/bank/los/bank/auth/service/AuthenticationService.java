@@ -253,9 +253,9 @@ public class AuthenticationService {
 
         Organization org = Organization.builder()
                 .id(orgId)
-                .institutionCode(orgCode)
+                .bankCode(orgCode)
                 .dbName(resolvedDb)
-                .name(orgCode)
+                .bankName(orgCode)
                 .build();
         UserPrincipal principal = buildStaffPrincipal(user, org);
         LoginResponse response = buildFullAuthResponse(principal, authMapper.toProfileResponse(user, org), user.getInactiveSessionTimeout());

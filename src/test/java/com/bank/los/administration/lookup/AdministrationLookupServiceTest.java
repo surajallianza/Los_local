@@ -24,7 +24,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -190,7 +189,7 @@ class AdministrationLookupServiceTest {
     void testSyncMasterLookupsToBank() {
         Organization org = Organization.builder()
                 .id(1L)
-                .institutionCode("HDFC01")
+                .bankCode("HDFC01")
                 .dbName("los_hdfc01_db")
                 .build();
 
@@ -218,7 +217,7 @@ class AdministrationLookupServiceTest {
     void testUpdateBankLookupPermissions() {
         Organization org = Organization.builder()
                 .id(1L)
-                .institutionCode("HDFC01")
+                .bankCode("HDFC01")
                 .dbName("los_hdfc01_db")
                 .build();
 

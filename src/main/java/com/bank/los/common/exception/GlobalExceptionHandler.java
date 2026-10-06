@@ -41,7 +41,35 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error(ex.getErrorCode())
                 .message(ex.getMessage())
-                .path(request.getRequestURI())
+                .path(request != null ? request.getRequestURI() : null)
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(com.bank.los.bank.lead.exception.ValidationException.class)
+    public ResponseEntity<ErrorResponse> handleValidationException(com.bank.los.bank.lead.exception.ValidationException ex, HttpServletRequest request) {
+        ErrorResponse error = ErrorResponse.builder()
+                .success(false)
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Lead validation failed")
+                .message(ex.getMessage())
+                .errors(ex.getErrors())
+                .path(request != null ? request.getRequestURI() : null)
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex, HttpServletRequest request) {
+        ErrorResponse error = ErrorResponse.builder()
+                .success(false)
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .message(ex.getMessage())
+                .errors(java.util.Collections.singletonList(ex.getMessage()))
+                .path(request != null ? request.getRequestURI() : null)
                 .timestamp(LocalDateTime.now())
                 .build();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);

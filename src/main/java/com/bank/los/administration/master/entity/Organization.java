@@ -51,6 +51,15 @@ public class Organization extends AuditableEntity {
     @Column(name = "gst_no", length = 50)
     private String gstNo;
 
+    @Column(name = "cin", length = 50)
+    private String cin;
+
+    @Column(name = "direct_clearing_number", length = 50)
+    private String directClearingNumber;
+
+    @Column(name = "micr_code", length = 9)
+    private String micrCode;
+
     @Column(name = "website", length = 255)
     private String website;
 
@@ -162,28 +171,28 @@ public class Organization extends AuditableEntity {
         this.bankType = type;
     }
 
-    public String getInstitutionCode() {
+    public String getBankCode() {
         return bankCode;
     }
 
-    public void setInstitutionCode(String institutionCode) {
-        this.bankCode = institutionCode;
+    public void setBankCode(String bankCode) {
+        this.bankCode = bankCode;
     }
 
-    public String getInstitutionName() {
+    public String getBankName() {
         return bankName;
     }
 
-    public void setInstitutionName(String institutionName) {
-        this.bankName = institutionName;
+    public void setBankName(String bankName) {
+        this.bankName = bankName;
     }
 
-    public String getInstitutionType() {
+    public String getBankType() {
         return bankType;
     }
 
-    public void setInstitutionType(String institutionType) {
-        this.bankType = institutionType;
+    public void setBankType(String bankType) {
+        this.bankType = bankType;
     }
 
     public String getRegistrationNumber() {
@@ -195,14 +204,53 @@ public class Organization extends AuditableEntity {
     }
 
     public String getCin() {
-        return gstNo;
+        return cin != null ? cin : gstNo;
     }
 
     public void setCin(String cin) {
-        this.gstNo = cin;
+        this.cin = cin;
+    }
+
+    public String getGstNumber() {
+        return gstNo;
+    }
+
+    public void setGstNumber(String gstNumber) {
+        this.gstNo = gstNumber;
+    }
+
+    public String getPanNumber() {
+        return pan;
+    }
+
+    public void setPanNumber(String panNumber) {
+        this.pan = panNumber;
+    }
+
+    public String getCinNumber() {
+        return cin;
+    }
+
+    public void setCinNumber(String cinNumber) {
+        this.cin = cinNumber;
     }
 
     public static class OrganizationBuilder {
+        public OrganizationBuilder bankCode(String bankCode) {
+            this.bankCode = bankCode;
+            return this;
+        }
+
+        public OrganizationBuilder bankName(String bankName) {
+            this.bankName = bankName;
+            return this;
+        }
+
+        public OrganizationBuilder bankType(String bankType) {
+            this.bankType = bankType;
+            return this;
+        }
+
         public OrganizationBuilder code(String code) {
             this.bankCode = code;
             return this;
@@ -218,28 +266,8 @@ public class Organization extends AuditableEntity {
             return this;
         }
 
-        public OrganizationBuilder institutionCode(String code) {
-            this.bankCode = code;
-            return this;
-        }
-
-        public OrganizationBuilder institutionName(String name) {
-            this.bankName = name;
-            return this;
-        }
-
-        public OrganizationBuilder institutionType(String type) {
-            this.bankType = type;
-            return this;
-        }
-
         public OrganizationBuilder registrationNumber(String registrationNumber) {
             this.licenseNumber = registrationNumber;
-            return this;
-        }
-
-        public OrganizationBuilder cin(String cin) {
-            this.gstNo = cin;
             return this;
         }
 
@@ -248,8 +276,38 @@ public class Organization extends AuditableEntity {
             return this;
         }
 
+        public OrganizationBuilder cin(String cin) {
+            this.cin = cin;
+            return this;
+        }
+
+        public OrganizationBuilder cinNumber(String cinNumber) {
+            this.cin = cinNumber;
+            return this;
+        }
+
         public OrganizationBuilder gstNo(String gstNo) {
             this.gstNo = gstNo;
+            return this;
+        }
+
+        public OrganizationBuilder gstNumber(String gstNumber) {
+            this.gstNo = gstNumber;
+            return this;
+        }
+
+        public OrganizationBuilder panNumber(String panNumber) {
+            this.pan = panNumber;
+            return this;
+        }
+
+        public OrganizationBuilder directClearingNumber(String directClearingNumber) {
+            this.directClearingNumber = directClearingNumber;
+            return this;
+        }
+
+        public OrganizationBuilder micrCode(String micrCode) {
+            this.micrCode = micrCode;
             return this;
         }
     }
