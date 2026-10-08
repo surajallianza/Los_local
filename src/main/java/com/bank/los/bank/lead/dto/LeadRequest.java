@@ -13,11 +13,11 @@ import java.time.LocalDateTime;
 /**
  * Unified Request and Data Transfer Object (DTO) for Lead Management.
  * Encapsulates all fields across the 4-step Lead Management flow:
- * 1. Personal Details: Customer Name, DOB, Age, Customer Type, Mobile Number, OTP, PAN Card,
+ * 1. Personal Details: Customer Name, DOB, Age, Customer Type, PAN Card,
  *    PAN Validate, Aadhaar Card, Aadhaar Validate, Residential Status, Gender, Marital Status,
- *    Passport No., De-Duplicate Check, Blacklist Check (plus optional lastName, email, pinCode, dependents).
+ *    Passport No., Passport Expiry Date, De-Duplicate Check, Blacklist Check (plus optional lastName, email, pinCode, dependents).
  * 2. Loan Details: Loan Product Type, Loan Amount, Purpose of Loan, Tenure, No. of Instalments,
- *    EMI, Property Value, Security Amount (plus optional downPaymentCollateral).
+ *    EMI, Interest Rate, Total Interest, Security Amount (plus optional downPaymentCollateral).
  * 3. Income Profile: Employment Type, Annual Income, Designation, Employer Name, Location, State,
  *    Take Home Pay, Deductions / EMIs Payable, Bank Name, Account Number, Account Statement Consent,
  *    CIBIL Liability Check, Debt-to-Income (DTI), Loan-to-Value (LTV), Debt Service Coverage Ratio (DSCR),
@@ -94,15 +94,7 @@ public class LeadRequest {
     @JsonAlias({"customer_type", "Customer Type", "userCategory", "user_category", "User Category"})
     private String customerType = "Individual";
 
-    @Column(name = "mobile_number")
-    @JsonProperty("mobileNumber")
-    @JsonAlias({"mobile", "mobile_number", "Mobile Number", "phone"})
-    private String mobileNumber;
 
-    @Column(name = "otp")
-    @JsonProperty("otp")
-    @JsonAlias({"otpCode", "OTP", "otpNumber", "OTP Number"})
-    private String otp;
 
     @Column(name = "pan_number")
     @JsonProperty("panNumber")
@@ -143,6 +135,11 @@ public class LeadRequest {
     @JsonProperty("passportNumber")
     @JsonAlias({"passport_number", "passportNo", "Passport No.", "passport"})
     private String passportNumber;
+
+    @Column(name = "passport_expiry_date")
+    @JsonProperty("passportExpiryDate")
+    @JsonAlias({"passport_expiry_date", "passportExpiry", "passport_expiry", "Passport Expiry Date"})
+    private String passportExpiryDate;
 
     @Column(name = "dedupe_status")
     @JsonProperty("dedupeStatus")
@@ -207,10 +204,15 @@ public class LeadRequest {
     @JsonAlias({"EMI", "monthlyEmi", "loanEmi"})
     private Double emi;
 
-    @Column(name = "property_value")
-    @JsonProperty("propertyValue")
-    @JsonAlias({"property_value", "PropertyValue", "Property Value"})
-    private Double propertyValue;
+    @Column(name = "interest_rate")
+    @JsonProperty("interestRate")
+    @JsonAlias({"interest_rate", "rateOfInterest", "roi", "Interest Rate"})
+    private Double interestRate;
+
+    @Column(name = "total_interest")
+    @JsonProperty("totalInterest")
+    @JsonAlias({"total_interest", "totalInterestAmount", "Total Interest"})
+    private Double totalInterest;
 
     @Column(name = "security_amount")
     @JsonProperty("securityAmount")
@@ -475,21 +477,7 @@ public class LeadRequest {
         this.customerType = userCategory;
     }
 
-    public String getMobileNumber() {
-        return mobileNumber;
-    }
 
-    public void setMobileNumber(String mobileNumber) {
-        this.mobileNumber = mobileNumber;
-    }
-
-    public String getOtp() {
-        return otp;
-    }
-
-    public void setOtp(String otp) {
-        this.otp = otp;
-    }
 
     public String getPanNumber() {
         return panNumber;
@@ -573,6 +561,14 @@ public class LeadRequest {
 
     public void setPassportNumber(String passportNumber) {
         this.passportNumber = passportNumber;
+    }
+
+    public String getPassportExpiryDate() {
+        return passportExpiryDate;
+    }
+
+    public void setPassportExpiryDate(String passportExpiryDate) {
+        this.passportExpiryDate = passportExpiryDate;
     }
 
     public String getDedupeStatus() {
@@ -694,12 +690,20 @@ public class LeadRequest {
         this.emi = emi;
     }
 
-    public Double getPropertyValue() {
-        return propertyValue;
+    public Double getInterestRate() {
+        return interestRate;
     }
 
-    public void setPropertyValue(Double propertyValue) {
-        this.propertyValue = propertyValue;
+    public void setInterestRate(Double interestRate) {
+        this.interestRate = interestRate;
+    }
+
+    public Double getTotalInterest() {
+        return totalInterest;
+    }
+
+    public void setTotalInterest(Double totalInterest) {
+        this.totalInterest = totalInterest;
     }
 
     public Double getSecurityAmount() {

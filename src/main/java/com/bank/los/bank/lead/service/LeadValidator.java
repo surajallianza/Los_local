@@ -13,11 +13,11 @@ import java.util.regex.Pattern;
 
 /**
  * Validator component enforcing all field-level and conditional rules for Lead entity:
- * 1. Personal Details: Name of Customer, Date of Birth, Age, Customer Type, Mobile Number,
- *    OTP, PAN Card, PAN Validate, Aadhaar Card, Aadhaar Validate, Residential Status,
- *    Gender, Marital Status, Passport No., De-Duplicate Check, Blacklist Check.
+ * 1. Personal Details: Name of Customer, Date of Birth, Age, Customer Type,
+ *    PAN Card, PAN Validate, Aadhaar Card, Aadhaar Validate, Residential Status,
+ *    Gender, Marital Status, Passport No., Passport Expiry Date, De-Duplicate Check, Blacklist Check.
  * 2. Loan Details: Loan Product Type, Loan Amount, Purpose of Loan, Tenure, No. of Instalments,
- *    EMI, Property Value, Security Amount.
+ *    EMI, Interest Rate, Total Interest, Security Amount.
  * 3. Income Profile: Employment Type, Annual Income, Designation, Employer Name, Location, State,
  *    Take Home Pay, Deductions / EMIs Payable, Bank Name, Account Number, Account Statement Consent,
  *    CIBIL Liability Check, Debt-to-Income (DTI), Loan-to-Value (LTV), Debt Service Coverage Ratio (DSCR),
@@ -29,12 +29,10 @@ import java.util.regex.Pattern;
 public class LeadValidator {
 
     private static final Pattern LEAD_ID_PATTERN = Pattern.compile("^LD\\d{6}\\d{4,}$");
-    private static final Pattern MOBILE_PATTERN = Pattern.compile("^\\d{10}$");
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$");
     private static final Pattern PIN_CODE_PATTERN = Pattern.compile("^\\d{6}$");
     private static final Pattern PAN_PATTERN = Pattern.compile("^[A-Z]{5}[0-9]{4}[A-Z]{1}$");
     private static final Pattern AADHAAR_PATTERN = Pattern.compile("^\\d{12}$");
-    private static final Pattern OTP_PATTERN = Pattern.compile("^\\d{4,6}$");
     private static final Pattern ACCOUNT_NUMBER_PATTERN = Pattern.compile("^[0-9A-Za-z]{9,18}$");
 
     public void validateAndNormalize(Lead lead) {
@@ -132,18 +130,6 @@ public class LeadValidator {
             lead.setLastName(null);
         }
 
-        // 7. Mobile Number (Mandatory: 10-digit number)
-        String mobile = lead.getMobileNumber();
-        if (mobile == null || mobile.trim().isEmpty()) {
-            errors.add("Mobile Number is mandatory and must be a 10-digit number");
-        } else {
-            String cleanedMobile = mobile.trim().replaceAll("[\\s-]", "");
-            if (!MOBILE_PATTERN.matcher(cleanedMobile).matches()) {
-                errors.add("Mobile Number must be a valid 10-digit number");
-            } else {
-                lead.setMobileNumber(cleanedMobile);
-            }
-        }
 
         // 8. Email Address (Optional: Standard Email Format if provided)
         String email = lead.getEmailAddress();
@@ -227,17 +213,18 @@ public class LeadValidator {
             errors.add("Age must be a positive number");
         }
 
-        // 13. OTP (Optional / Conditional: 4 to 6 digits)
-        String otp = lead.getOtp();
-        if (otp != null && !otp.trim().isEmpty()) {
-            String trimmedOtp = otp.trim();
-            if (!OTP_PATTERN.matcher(trimmedOtp).matches()) {
-                errors.add("OTP must be a 4 to 6 digit verification code");
-            } else {
-                lead.setOtp(trimmedOtp);
+        // 13. Passport Expiry Date (Optional / Conditional: YYYY-MM-DD if provided)
+        String passportExpiry = lead.getPassportExpiryDate();
+        if (passportExpiry != null && !passportExpiry.trim().isEmpty()) {
+            String trimmedPassportExpiry = passportExpiry.trim();
+            try {
+                LocalDate.parse(trimmedPassportExpiry);
+                lead.setPassportExpiryDate(trimmedPassportExpiry);
+            } catch (DateTimeParseException ex) {
+                errors.add("Passport Expiry Date must follow format YYYY-MM-DD");
             }
         } else {
-            lead.setOtp(null);
+            lead.setPassportExpiryDate(null);
         }
 
         // 14. Financial Values & Loan Details
@@ -266,9 +253,14 @@ public class LeadValidator {
             errors.add("EMI must be a non-negative amount");
         }
 
-        Double propertyValue = lead.getPropertyValue();
-        if (propertyValue != null && propertyValue < 0) {
-            errors.add("Property Value must be a non-negative amount");
+        Double interestRate = lead.getInterestRate();
+        if (interestRate != null && (interestRate < 0 || interestRate > 100)) {
+            errors.add("Interest Rate must be between 0 and 100");
+        }
+
+        Double totalInterest = lead.getTotalInterest();
+        if (totalInterest != null && totalInterest < 0) {
+            errors.add("Total Interest must be a non-negative amount");
         }
 
         Double securityAmount = lead.getSecurityAmount();

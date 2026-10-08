@@ -353,8 +353,7 @@ CREATE TABLE customer.leads (
     dob                         VARCHAR(20),
     age                         INT,
     customer_type               VARCHAR(50) DEFAULT 'Individual',
-    mobile_number               VARCHAR(20),
-    otp                         VARCHAR(10),
+
     pan_number                  VARCHAR(20),
     pan_validation_status       VARCHAR(50),
     aadhaar_number              VARCHAR(20),
@@ -363,6 +362,7 @@ CREATE TABLE customer.leads (
     gender                      VARCHAR(20),
     marital_status              VARCHAR(30),
     passport_number             VARCHAR(30),
+    passport_expiry_date        VARCHAR(20),
     dedupe_status               VARCHAR(50),
     blacklist_status            VARCHAR(50),
     last_name                   VARCHAR(80),
@@ -377,7 +377,8 @@ CREATE TABLE customer.leads (
     tenure                      INT,
     number_of_instalments       INT,
     emi                         NUMERIC(15,2),
-    property_value              NUMERIC(15,2),
+    interest_rate               NUMERIC(5,2),
+    total_interest              NUMERIC(15,2),
     security_amount             NUMERIC(15,2),
     down_payment_collateral     VARCHAR(255),
 
@@ -412,7 +413,7 @@ CREATE TABLE customer.leads (
     updated_at                  TIMESTAMP DEFAULT now()
 );
 
-CREATE INDEX idx_leads_mobile ON customer.leads(mobile_number);
+
 CREATE INDEX idx_leads_pan ON customer.leads(pan_number);
 CREATE INDEX idx_leads_aadhaar ON customer.leads(aadhaar_number);
 CREATE INDEX idx_leads_status ON customer.leads(lead_status);

@@ -21,8 +21,28 @@ An enterprise-grade, multi-tenant Spring Boot backend for Loan Origination Syste
 
 A ready-to-use Postman Collection and comprehensive guide are included:
 
-- 📄 **Postman Guide**: [docs/POSTMAN_API_TESTING_GUIDE.md](file:///c:/Users/Khushmeet%20Patil/Documents/Webiste/New%20folder/LOS-Backend/docs/POSTMAN_API_TESTING_GUIDE.md)
-- 📦 **Postman Collection**: [docs/LOS_Backend_Postman_Collection.json](file:///c:/Users/Khushmeet%20Patil/Documents/Webiste/New%20folder/LOS-Backend/docs/LOS_Backend_Postman_Collection.json)
+- 📄 **Postman Guide**: [docs/POSTMAN_API_TESTING_GUIDE.md](docs/POSTMAN_API_TESTING_GUIDE.md)
+- 📦 **Postman Collection**: [docs/LOS_Backend_Postman_Collection.json](docs/LOS_Backend_Postman_Collection.json)
+
+---
+
+## 👥 Lead Management Module
+
+The backend includes a comprehensive 4-step Lead Origination module:
+1. **Personal Details**: Customer Name, DOB, Age, Customer Type, PAN Card, PAN Validate, Aadhaar Card, Aadhaar Validate, Residential Status, Gender, Marital Status, Passport No., **Passport Expiry Date** (`passportExpiryDate`), De-Duplicate Check, Blacklist Check, Last Name, Email Address, Pin Code, Number of Dependents. *(Note: `mobileNumber` and OTP-related fields are completely removed from the Lead form/model).*
+2. **Loan Details**: Loan Product Type, Loan Amount, Purpose of Loan, Tenure, Number of Instalments, EMI, **Interest Rate** (`interestRate`), **Total Interest** (`totalInterest`), Security Amount, Down Payment / Collateral. *(Note: `propertyValue` is replaced by `totalInterest`).*
+3. **Income Profile**: Employment Type, Annual Income, Designation, Employer Name, Location, State, Take Home Pay, Deductions / EMIs Payable, Bank Name, Primary Bank Account, Account Statement Consent, CIBIL Liability Check, DTI, LTV, DSCR, Net Disposable Income.
+4. **Referral Details**: Sourcing Channel, Referral Date, LSP Partner Code, Agent Partner Name, Sourcing Employee ID, Sourcing Employee Name.
+
+### Lead Management REST Endpoints:
+- `POST /api/v1/leads` - Create a new Lead across all 4 steps
+- `GET /api/v1/leads/{leadId}` - Retrieve Lead details by ID
+- `GET /api/v1/leads` - Retrieve all Leads
+- `PUT /api/v1/leads/{leadId}` - Update editable Lead fields
+- `PUT /api/v1/leads/{leadId}/assign` - Assign Lead to an active Maker user
+- `GET /api/v1/leads/sample-csv` - Download RFC-4180 compliant CSV template
+- `GET /api/v1/leads/export` - Export all leads to CSV
+- `POST /api/v1/leads/import` - Bulk import leads from CSV
 
 ---
 
@@ -38,4 +58,4 @@ A ready-to-use Postman Collection and comprehensive guide are included:
 mvn spring-boot:run -Dspring-boot.run.profiles=local
 ```
 
-Access Swagger UI documentation at: `http://localhost:8080/swagger-ui.html`
+Access Swagger UI documentation at: `http://localhost:8080/swagger-ui.html`

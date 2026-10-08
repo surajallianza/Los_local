@@ -22,7 +22,7 @@ public class Lead extends LeadRequest {
     }
 
     public Lead(String leadId, String sourcingChannel, String lspPartnerCode, String userCategory,
-                String firstNameBusinessName, String lastName, String mobileNumber, String emailAddress) {
+                String firstNameBusinessName, String lastName, String emailAddress) {
         super();
         setLeadId(leadId);
         setSourcingChannel(sourcingChannel);
@@ -30,7 +30,6 @@ public class Lead extends LeadRequest {
         setCustomerType(userCategory);
         setFirstNameBusinessName(firstNameBusinessName);
         setLastName(lastName);
-        setMobileNumber(mobileNumber);
         setEmailAddress(emailAddress);
     }
 
@@ -52,8 +51,6 @@ public class Lead extends LeadRequest {
             setDob(request.getDob());
             setAge(request.getAge());
             setCustomerType(request.getCustomerType());
-            setMobileNumber(request.getMobileNumber());
-            setOtp(request.getOtp());
             setPanNumber(request.getPanNumber());
             setPanValidationStatus(request.getPanValidationStatus());
             setAadhaarNumber(request.getAadhaarNumber());
@@ -62,6 +59,7 @@ public class Lead extends LeadRequest {
             setGender(request.getGender());
             setMaritalStatus(request.getMaritalStatus());
             setPassportNumber(request.getPassportNumber());
+            setPassportExpiryDate(request.getPassportExpiryDate());
             setDedupeStatus(request.getDedupeStatus());
             setBlacklistStatus(request.getBlacklistStatus());
             setNumberOfDependents(request.getNumberOfDependents());
@@ -75,7 +73,8 @@ public class Lead extends LeadRequest {
             setTenure(request.getTenure());
             setNumberOfInstalments(request.getNumberOfInstalments());
             setEmi(request.getEmi());
-            setPropertyValue(request.getPropertyValue());
+            setInterestRate(request.getInterestRate());
+            setTotalInterest(request.getTotalInterest());
             setSecurityAmount(request.getSecurityAmount());
             setDownPaymentCollateral(request.getDownPaymentCollateral());
 
@@ -127,10 +126,11 @@ public class Lead extends LeadRequest {
         return "Lead{" +
                 "leadId='" + getLeadId() + '\'' +
                 ", customerName='" + getFirstNameBusinessName() + '\'' +
-                ", mobileNumber='" + getMobileNumber() + '\'' +
                 ", panNumber='" + getPanNumber() + '\'' +
                 ", loanProductType='" + getLoanProductType() + '\'' +
                 ", loanAmount=" + getLoanAmount() +
+                ", interestRate=" + getInterestRate() +
+                ", totalInterest=" + getTotalInterest() +
                 ", sourcingChannel='" + getSourcingChannel() + '\'' +
                 ", leadStatus='" + getLeadStatus() + '\'' +
                 ", assignedEmployeeId='" + getAssignedEmployeeId() + '\'' +

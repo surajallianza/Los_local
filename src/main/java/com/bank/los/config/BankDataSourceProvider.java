@@ -145,6 +145,8 @@ public class BankDataSourceProvider {
             java.sql.DatabaseMetaData meta = conn.getMetaData();
             try (ResultSet rs = meta.getTables(null, "customer", "leads", new String[]{"TABLE"})) {
                 if (rs.next()) {
+                    try { stmt.execute("ALTER TABLE customer.leads ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT now()"); } catch (Exception ignored) {}
+                    try { stmt.execute("ALTER TABLE customer.leads ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT now()"); } catch (Exception ignored) {}
                     try { stmt.execute("ALTER TABLE customer.leads ALTER COLUMN created_at DROP NOT NULL"); } catch (Exception ignored) {}
                     try { stmt.execute("ALTER TABLE customer.leads ALTER COLUMN created_at SET DEFAULT now()"); } catch (Exception ignored) {}
                     try { stmt.execute("ALTER TABLE customer.leads ALTER COLUMN updated_at DROP NOT NULL"); } catch (Exception ignored) {}
@@ -152,6 +154,15 @@ public class BankDataSourceProvider {
                     try { stmt.execute("ALTER TABLE customer.leads ALTER COLUMN customer_name DROP NOT NULL"); } catch (Exception ignored) {}
                     try { stmt.execute("ALTER TABLE customer.leads ALTER COLUMN phone DROP NOT NULL"); } catch (Exception ignored) {}
                     try { stmt.execute("ALTER TABLE customer.leads ALTER COLUMN lead_number DROP NOT NULL"); } catch (Exception ignored) {}
+                    try { stmt.execute("ALTER TABLE customer.leads ADD COLUMN IF NOT EXISTS passport_expiry_date VARCHAR(20)"); } catch (Exception ignored) {}
+                    try { stmt.execute("ALTER TABLE customer.leads ADD COLUMN IF NOT EXISTS interest_rate NUMERIC(5,2)"); } catch (Exception ignored) {}
+                    try { stmt.execute("ALTER TABLE customer.leads ADD COLUMN IF NOT EXISTS total_interest NUMERIC(15,2)"); } catch (Exception ignored) {}
+                    try { stmt.execute("ALTER TABLE customer.leads ALTER COLUMN mobile_number DROP NOT NULL"); } catch (Exception ignored) {}
+                    try { stmt.execute("ALTER TABLE customer.leads ALTER COLUMN otp DROP NOT NULL"); } catch (Exception ignored) {}
+                    try { stmt.execute("ALTER TABLE customer.leads ALTER COLUMN property_value DROP NOT NULL"); } catch (Exception ignored) {}
+                    try { stmt.execute("ALTER TABLE customer.leads DROP COLUMN IF EXISTS mobile_number"); } catch (Exception ignored) {}
+                    try { stmt.execute("ALTER TABLE customer.leads DROP COLUMN IF EXISTS otp"); } catch (Exception ignored) {}
+                    try { stmt.execute("ALTER TABLE customer.leads DROP COLUMN IF EXISTS property_value"); } catch (Exception ignored) {}
                 }
             }
         } catch (Exception e) {

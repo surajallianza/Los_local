@@ -24,13 +24,9 @@ public interface LeadRepository extends JpaRepository<Lead, String> {
 
     List<Lead> findByLeadIdStartingWithOrderByLeadIdDesc(String prefix);
 
-    boolean existsByMobileNumber(String mobileNumber);
-
     boolean existsByPanNumber(String panNumber);
 
     boolean existsByAadhaarNumber(String aadhaarNumber);
-
-    Optional<Lead> findByMobileNumber(String mobileNumber);
 
     Optional<Lead> findByPanNumber(String panNumber);
 

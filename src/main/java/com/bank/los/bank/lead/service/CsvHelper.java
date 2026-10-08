@@ -9,11 +9,11 @@ import java.util.List;
 /**
  * Robust RFC-4180 compliant CSV parser and generator for Lead bulk import/export.
  * Supports all fields across the 4-step Lead Origination flow:
- * 1. Personal Details: Customer Name, DOB, Age, Customer Type, Mobile Number, OTP, PAN Card,
+ * 1. Personal Details: Customer Name, DOB, Age, Customer Type, PAN Card,
  *    PAN Validation Status, Aadhaar Card, Aadhaar Validation Status, Residential Status, Gender,
- *    Marital Status, Passport No., De-Duplicate Status, Blacklist Status, Last Name, Email, Pin Code, Dependents
+ *    Marital Status, Passport No., Passport Expiry Date, De-Duplicate Status, Blacklist Status, Last Name, Email Address, Pin Code, No. of Dependents
  * 2. Loan Details: Loan Product Type, Loan Amount, Purpose of Loan, Tenure, No. of Instalments,
- *    EMI, Property Value, Security Amount, Down Payment / Collateral
+ *    EMI, Interest Rate, Total Interest, Security Amount, Down Payment / Collateral
  * 3. Income Profile: Employment Type, Annual Income, Designation, Employer Name, Location, State,
  *    Take Home Pay, Deductions / EMIs Payable, Bank Name, Account Number, Account Statement Consent,
  *    CIBIL Liability Check, Debt-to-Income (DTI), Loan-to-Value (LTV), Debt Service Coverage Ratio (DSCR),
@@ -31,8 +31,6 @@ public class CsvHelper {
         "Date of Birth",
         "Age",
         "Customer Type",
-        "Mobile Number",
-        "OTP",
         "PAN Card",
         "PAN Validation Status",
         "Aadhaar Card",
@@ -41,6 +39,7 @@ public class CsvHelper {
         "Gender",
         "Marital Status",
         "Passport No.",
+        "Passport Expiry Date",
         "De-Duplicate Status",
         "Blacklist Status",
         "Last Name",
@@ -54,7 +53,8 @@ public class CsvHelper {
         "Tenure",
         "No. of Instalments",
         "EMI",
-        "Property Value",
+        "Interest Rate",
+        "Total Interest",
         "Security Amount",
         "Down Payment / Collateral",
         // 3. Income Profile
@@ -206,8 +206,6 @@ public class CsvHelper {
         public int dobCol = -1;
         public int ageCol = -1;
         public int userCategoryCol = -1;
-        public int mobileNumberCol = -1;
-        public int otpCol = -1;
         public int panNumberCol = -1;
         public int panValidationStatusCol = -1;
         public int aadhaarNumberCol = -1;
@@ -216,6 +214,7 @@ public class CsvHelper {
         public int genderCol = -1;
         public int maritalStatusCol = -1;
         public int passportNumberCol = -1;
+        public int passportExpiryDateCol = -1;
         public int dedupeStatusCol = -1;
         public int blacklistStatusCol = -1;
         public int lastNameCol = -1;
@@ -230,7 +229,8 @@ public class CsvHelper {
         public int tenureCol = -1;
         public int numberOfInstalmentsCol = -1;
         public int emiCol = -1;
-        public int propertyValueCol = -1;
+        public int interestRateCol = -1;
+        public int totalInterestCol = -1;
         public int securityAmountCol = -1;
         public int downPaymentCollateralCol = -1;
 
@@ -275,7 +275,6 @@ public class CsvHelper {
             if (sourcingChannelCol == -1) missing.add("Sourcing Channel");
             if (userCategoryCol == -1) missing.add("User Category / Customer Type");
             if (firstNameBusinessNameCol == -1) missing.add("First Name / Business Name / Name of Customer");
-            if (mobileNumberCol == -1) missing.add("Mobile Number");
             return missing;
         }
     }
@@ -299,36 +298,36 @@ public class CsvHelper {
                 indices.referralDateCol = i;
             } else if (norm.contains("usercategory") || norm.contains("customertype") || norm.equals("category")) {
                 indices.userCategoryCol = i;
+            } else if (norm.contains("dateofbirth") || norm.equals("dob") || norm.contains("birth")) {
+                indices.dobCol = i;
+            } else if (norm.equals("age") || norm.contains("applicantage")) {
+                indices.ageCol = i;
+            } else if (norm.contains("panvalidation") || norm.contains("panvalidate") || norm.contains("panval")) {
+                indices.panValidationStatusCol = i;
+            } else if (norm.contains("pancard") || norm.equals("pan") || norm.contains("pannumber")) {
+                indices.panNumberCol = i;
+            } else if (norm.contains("aadhaarvalidation") || norm.contains("aadharvalidation") || norm.contains("aadhaarvalidate") || norm.contains("aadharvalidate")) {
+                indices.aadhaarValidationStatusCol = i;
+            } else if (norm.contains("aadhaar") || norm.contains("aadhar")) {
+                indices.aadhaarNumberCol = i;
+            } else if (norm.contains("residential") || norm.contains("residence")) {
+                indices.residentialStatusCol = i;
+            } else if (norm.equals("gender") || norm.equals("sex")) {
+                indices.genderCol = i;
+            } else if (norm.contains("email") || norm.equals("mail")) {
+                indices.emailAddressCol = i;
+            } else if (norm.contains("pincode") || norm.equals("pin") || norm.contains("zip") || norm.contains("zipcode")) {
+                indices.pinCodeCol = i;
+            } else if (norm.contains("employer") || norm.contains("company")) {
+                indices.employerBusinessNameCol = i;
             } else if (norm.contains("firstnamebusinessname") || norm.contains("firstname") || norm.contains("businessname") || norm.contains("nameofcustomer") || norm.contains("customername") || norm.equals("name")) {
                 indices.firstNameBusinessNameCol = i;
             } else if (norm.contains("lastname") || norm.equals("surname")) {
                 indices.lastNameCol = i;
-            } else if (norm.contains("mobilenumber") || norm.contains("mobile") || norm.equals("phone")) {
-                indices.mobileNumberCol = i;
-            } else if (norm.contains("emailaddress") || norm.contains("email") || norm.equals("mail")) {
-                indices.emailAddressCol = i;
-            } else if (norm.contains("pincode") || norm.contains("zipcode") || norm.equals("postalcode") || norm.equals("pin")) {
-                indices.pinCodeCol = i;
-            } else if (norm.contains("dateofbirth") || norm.equals("dob")) {
-                indices.dobCol = i;
-            } else if (norm.equals("age") || norm.contains("applicantage")) {
-                indices.ageCol = i;
-            } else if (norm.equals("otp") || norm.contains("otpcode") || norm.contains("otpnumber")) {
-                indices.otpCol = i;
-            } else if (norm.contains("panvalidation") || norm.contains("panvalidate")) {
-                indices.panValidationStatusCol = i;
-            } else if (norm.contains("pancard") || norm.contains("pannumber") || norm.equals("pan")) {
-                indices.panNumberCol = i;
-            } else if (norm.contains("aadhaarvalidation") || norm.contains("aadhaarvalidate") || norm.contains("aadharvalidation")) {
-                indices.aadhaarValidationStatusCol = i;
-            } else if (norm.contains("aadhaarcard") || norm.contains("aadhaarnumber") || norm.equals("aadhaar") || norm.contains("aadhar")) {
-                indices.aadhaarNumberCol = i;
-            } else if (norm.contains("residential") || norm.contains("residentstatus")) {
-                indices.residentialStatusCol = i;
-            } else if (norm.equals("gender") || norm.equals("sex")) {
-                indices.genderCol = i;
             } else if (norm.contains("marital") || norm.contains("marriage")) {
                 indices.maritalStatusCol = i;
+            } else if (norm.contains("passportexpiry") || norm.contains("passportexpirydate")) {
+                indices.passportExpiryDateCol = i;
             } else if (norm.contains("passport")) {
                 indices.passportNumberCol = i;
             } else if (norm.contains("dedupe") || norm.contains("deduplicate")) {
@@ -379,8 +378,10 @@ public class CsvHelper {
                 indices.numberOfInstalmentsCol = i;
             } else if (norm.equals("emi") || norm.contains("monthlyemi")) {
                 indices.emiCol = i;
-            } else if (norm.contains("propertyvalue")) {
-                indices.propertyValueCol = i;
+            } else if (norm.contains("interestrate") || norm.equals("rate") || norm.equals("roi") || norm.contains("rateofinterest")) {
+                indices.interestRateCol = i;
+            } else if (norm.contains("totalinterest") || norm.equals("interest")) {
+                indices.totalInterestCol = i;
             } else if (norm.contains("securityamount")) {
                 indices.securityAmountCol = i;
             } else if (norm.contains("downpayment") || norm.contains("collateral")) {
@@ -412,11 +413,11 @@ public class CsvHelper {
      */
     public static String generateSampleCsvContent() {
         return """
-                Lead ID,Name of Customer,Date of Birth,Age,Customer Type,Mobile Number,OTP,PAN Card,PAN Validation Status,Aadhaar Card,Aadhaar Validation Status,Residential Status,Gender,Marital Status,Passport No.,De-Duplicate Status,Blacklist Status,Last Name,Email Address,Pin Code,No. of Dependents,Loan Product Type,Loan Amount,Purpose of Loan,Tenure,No. of Instalments,EMI,Property Value,Security Amount,Down Payment / Collateral,Employment Type,Annual Income,Designation,Employer Name,Location,State,Take Home Pay,Deductions / EMIs Payable,Bank Name,Account Number,Account Statement Consent,CIBIL Liability Check,Debt-to-Income (DTI),Loan-to-Value (LTV),Debt Service Coverage Ratio (DSCR),Net Disposable Income (NDI),Lead Acquisition Channel,Referral Date,Sourcing Agent / Partner ID,Agent / Partner Name,Employee ID,Employee Name,Lead Status,Assigned Employee,Assignment Timestamp,Assigned By\r
-                ,Amit Sharma,1990-05-15,36,Individual,9876543210,654321,ABCDE1234F,VALIDATED,123456789012,VALIDATED,Resident Indian,Male,Married,Z1234567,PASSED,CLEARED,Sharma,amit.sharma@example.com,400001,2,Home Loan,5000000,Apartment Purchase,240,240,43391,7000000,500000,1000000 Down Payment,Salaried,1200000,Senior Architect,Tata Consultancy Services,Mumbai,Maharashtra,85000,12000,HDFC Bank,50100234567890,true,780 - Clear,35.5,71.4,2.8,42000,Branch Office,2026-10-01,LSP-1001,Karan Kapoor,EMP102,Rahul Verma,NEW,,,\r
-                ,Priya Verma,1993-08-20,33,Individual,9812345678,123456,BCDEF2345G,VALIDATED,234567890123,VALIDATED,Resident Indian,Female,Single,,PASSED,CLEARED,Verma,priya.verma@example.com,400076,0,Personal Loan,800000,Home Renovation,36,36,26388,0,0,,Salaried,1500000,Software Lead,Infosys Technologies,Pune,Maharashtra,105000,0,ICICI Bank,001122334455,true,755 - Clear,25.1,0.0,3.9,78612,Website,2026-10-02,,,EMP105,Pooja Mehta,NEW,,,\r
-                ,Apex Technologies,1985-03-10,41,Non-Individual,9823456789,789123,CDEFG3456H,VALIDATED,345678901234,VALIDATED,Resident Indian,Male,Married,,PASSED,CLEARED,,contact@apextech.com,560001,1,Business Loan,2500000,Working Capital,60,60,56885,4000000,200000,Commercial Property,Self-Employed Business,3500000,Managing Director,Apex Technologies,Bengaluru,Karnataka,220000,25000,State Bank of India,334455667788,true,810 - Clear,37.2,62.5,2.7,138115,Mobile App,2026-10-03,,,EMP102,Rahul Verma,NEW,,,\r
-                LD2026099901,Rajesh Patel,1988-11-12,38,Individual,9845678901,789012,EFGHI5678J,VALIDATED,456789012345,VALIDATED,Resident Indian,Male,Married,M9876543,PASSED,CLEARED,Patel,rajesh.patel@example.com,411001,1,Education Loan,1200000,Child Higher Education,84,84,19688,0,0,,Salaried,2000000,VP Operations,Reliance Industries,Mumbai,Maharashtra,140000,15000,Kotak Mahindra Bank,123456789012,true,760 - Clear,24.7,0.0,4.0,105312,Branch Office,2026-09-30,LSP-3002,Pooja Sharma,EMP102,Rahul Verma,ASSIGNED,EMP102,2026-09-30T10:00:00,EMP101\r
+                Lead ID,Name of Customer,Date of Birth,Age,Customer Type,PAN Card,PAN Validation Status,Aadhaar Card,Aadhaar Validation Status,Residential Status,Gender,Marital Status,Passport No.,Passport Expiry Date,De-Duplicate Status,Blacklist Status,Last Name,Email Address,Pin Code,No. of Dependents,Loan Product Type,Loan Amount,Purpose of Loan,Tenure,No. of Instalments,EMI,Interest Rate,Total Interest,Security Amount,Down Payment / Collateral,Employment Type,Annual Income,Designation,Employer Name,Location,State,Take Home Pay,Deductions / EMIs Payable,Bank Name,Account Number,Account Statement Consent,CIBIL Liability Check,Debt-to-Income (DTI),Loan-to-Value (LTV),Debt Service Coverage Ratio (DSCR),Net Disposable Income (NDI),Lead Acquisition Channel,Referral Date,Sourcing Agent / Partner ID,Agent / Partner Name,Employee ID,Employee Name,Lead Status,Assigned Employee,Assignment Timestamp,Assigned By\r
+                ,Amit Sharma,1990-05-15,36,Individual,ABCDE1234F,VALIDATED,123456789012,VALIDATED,Resident Indian,Male,Married,Z1234567,2032-12-31,PASSED,CLEARED,Sharma,amit.sharma@example.com,400001,2,Home Loan,5000000,Apartment Purchase,240,240,43391,8.5,5413840,500000,1000000 Down Payment,Salaried,1200000,Senior Architect,Tata Consultancy Services,Mumbai,Maharashtra,85000,12000,HDFC Bank,50100234567890,true,780 - Clear,35.5,71.4,2.8,42000,Branch Office,2026-10-01,LSP-1001,Karan Kapoor,EMP102,Rahul Verma,NEW,,,\r
+                ,Priya Verma,1993-08-20,33,Individual,BCDEF2345G,VALIDATED,234567890123,VALIDATED,Resident Indian,Female,Single,,,PASSED,CLEARED,Verma,priya.verma@example.com,400076,0,Personal Loan,800000,Home Renovation,36,36,26388,11.2,149968,0,,Salaried,1500000,Software Lead,Infosys Technologies,Pune,Maharashtra,105000,0,ICICI Bank,001122334455,true,755 - Clear,25.1,0.0,3.9,78612,Website,2026-10-02,,,EMP105,Pooja Mehta,NEW,,,\r
+                ,Apex Technologies,1985-03-10,41,Non-Individual,CDEFG3456H,VALIDATED,345678901234,VALIDATED,Resident Indian,Male,Married,,,PASSED,CLEARED,,contact@apextech.com,560001,1,Business Loan,2500000,Working Capital,60,60,56885,13.5,913100,200000,Commercial Property,Self-Employed Business,3500000,Managing Director,Apex Technologies,Bengaluru,Karnataka,220000,25000,State Bank of India,334455667788,true,810 - Clear,37.2,62.5,2.7,138115,Mobile App,2026-10-03,,,EMP102,Rahul Verma,NEW,,,\r
+                LD2026099901,Rajesh Patel,1988-11-12,38,Individual,EFGHI5678J,VALIDATED,456789012345,VALIDATED,Resident Indian,Male,Married,M9876543,2030-06-30,PASSED,CLEARED,Patel,rajesh.patel@example.com,411001,1,Education Loan,1200000,Child Higher Education,84,84,19688,9.5,453792,0,,Salaried,2000000,VP Operations,Reliance Industries,Mumbai,Maharashtra,140000,15000,Kotak Mahindra Bank,123456789012,true,760 - Clear,24.7,0.0,4.0,105312,Branch Office,2026-09-30,LSP-3002,Pooja Sharma,EMP102,Rahul Verma,ASSIGNED,EMP102,2026-09-30T10:00:00,EMP101\r
                 """;
     }
 }

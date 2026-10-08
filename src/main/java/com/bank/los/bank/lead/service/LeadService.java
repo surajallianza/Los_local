@@ -102,7 +102,7 @@ public class LeadService {
      * Auto-generates Lead ID in format LDYYYYMM#### if not provided or empty.
      * Validates format and uniqueness if client supplies a Lead ID.
      * Automatically sets leadStatus = NEW on creation.
-     * Enforces duplicate checking on Mobile Number, PAN Number, and Aadhaar Number.
+     * Enforces duplicate checking on PAN Number and Aadhaar Number.
      *
      * @param request LeadRequest DTO containing 4-step form data
      * @return persisted Lead entity
@@ -136,14 +136,7 @@ public class LeadService {
         // 3. Validate and normalize all fields
         leadValidator.validateAndNormalize(lead);
 
-        // 4. Duplicate checks
-        // Duplicate Mobile Number Check
-        if (lead.getMobileNumber() != null && !lead.getMobileNumber().trim().isEmpty()) {
-            String mobile = lead.getMobileNumber().trim();
-            if (leadRepository.existsByMobileNumber(mobile)) {
-                throw new ValidationException("Duplicate lead detected: A lead with Mobile Number '" + mobile + "' already exists");
-            }
-        }
+
 
         // Duplicate PAN Check
         if (lead.getPanNumber() != null && !lead.getPanNumber().trim().isEmpty()) {
@@ -238,12 +231,7 @@ public class LeadService {
             if (indices.userCategoryCol >= 0 && indices.userCategoryCol < row.size()) {
                 lead.setCustomerType(row.get(indices.userCategoryCol));
             }
-            if (indices.mobileNumberCol >= 0 && indices.mobileNumberCol < row.size()) {
-                lead.setMobileNumber(row.get(indices.mobileNumberCol));
-            }
-            if (indices.otpCol >= 0 && indices.otpCol < row.size()) {
-                lead.setOtp(row.get(indices.otpCol));
-            }
+
             if (indices.panNumberCol >= 0 && indices.panNumberCol < row.size()) {
                 lead.setPanNumber(row.get(indices.panNumberCol));
             }
@@ -267,6 +255,9 @@ public class LeadService {
             }
             if (indices.passportNumberCol >= 0 && indices.passportNumberCol < row.size()) {
                 lead.setPassportNumber(row.get(indices.passportNumberCol));
+            }
+            if (indices.passportExpiryDateCol >= 0 && indices.passportExpiryDateCol < row.size()) {
+                lead.setPassportExpiryDate(row.get(indices.passportExpiryDateCol));
             }
             if (indices.dedupeStatusCol >= 0 && indices.dedupeStatusCol < row.size()) {
                 lead.setDedupeStatus(row.get(indices.dedupeStatusCol));
@@ -321,10 +312,16 @@ public class LeadService {
                     try { lead.setEmi(Double.valueOf(val)); } catch (NumberFormatException ignored) {}
                 }
             }
-            if (indices.propertyValueCol >= 0 && indices.propertyValueCol < row.size()) {
-                String val = row.get(indices.propertyValueCol).trim();
+            if (indices.interestRateCol >= 0 && indices.interestRateCol < row.size()) {
+                String val = row.get(indices.interestRateCol).trim();
                 if (!val.isEmpty()) {
-                    try { lead.setPropertyValue(Double.valueOf(val)); } catch (NumberFormatException ignored) {}
+                    try { lead.setInterestRate(Double.valueOf(val)); } catch (NumberFormatException ignored) {}
+                }
+            }
+            if (indices.totalInterestCol >= 0 && indices.totalInterestCol < row.size()) {
+                String val = row.get(indices.totalInterestCol).trim();
+                if (!val.isEmpty()) {
+                    try { lead.setTotalInterest(Double.valueOf(val)); } catch (NumberFormatException ignored) {}
                 }
             }
             if (indices.securityAmountCol >= 0 && indices.securityAmountCol < row.size()) {
@@ -504,8 +501,7 @@ public class LeadService {
         if (updateData.getDob() != null) existingLead.setDob(updateData.getDob());
         if (updateData.getAge() != null) existingLead.setAge(updateData.getAge());
         if (updateData.getCustomerType() != null) existingLead.setCustomerType(updateData.getCustomerType());
-        if (updateData.getMobileNumber() != null) existingLead.setMobileNumber(updateData.getMobileNumber());
-        if (updateData.getOtp() != null) existingLead.setOtp(updateData.getOtp());
+
         if (updateData.getPanNumber() != null) existingLead.setPanNumber(updateData.getPanNumber());
         if (updateData.getPanValidationStatus() != null) existingLead.setPanValidationStatus(updateData.getPanValidationStatus());
         if (updateData.getAadhaarNumber() != null) existingLead.setAadhaarNumber(updateData.getAadhaarNumber());
@@ -514,6 +510,7 @@ public class LeadService {
         if (updateData.getGender() != null) existingLead.setGender(updateData.getGender());
         if (updateData.getMaritalStatus() != null) existingLead.setMaritalStatus(updateData.getMaritalStatus());
         if (updateData.getPassportNumber() != null) existingLead.setPassportNumber(updateData.getPassportNumber());
+        if (updateData.getPassportExpiryDate() != null) existingLead.setPassportExpiryDate(updateData.getPassportExpiryDate());
         if (updateData.getDedupeStatus() != null) existingLead.setDedupeStatus(updateData.getDedupeStatus());
         if (updateData.getBlacklistStatus() != null) existingLead.setBlacklistStatus(updateData.getBlacklistStatus());
         if (updateData.getNumberOfDependents() != null) existingLead.setNumberOfDependents(updateData.getNumberOfDependents());
@@ -527,7 +524,8 @@ public class LeadService {
         if (updateData.getTenure() != null) existingLead.setTenure(updateData.getTenure());
         if (updateData.getNumberOfInstalments() != null) existingLead.setNumberOfInstalments(updateData.getNumberOfInstalments());
         if (updateData.getEmi() != null) existingLead.setEmi(updateData.getEmi());
-        if (updateData.getPropertyValue() != null) existingLead.setPropertyValue(updateData.getPropertyValue());
+        if (updateData.getInterestRate() != null) existingLead.setInterestRate(updateData.getInterestRate());
+        if (updateData.getTotalInterest() != null) existingLead.setTotalInterest(updateData.getTotalInterest());
         if (updateData.getSecurityAmount() != null) existingLead.setSecurityAmount(updateData.getSecurityAmount());
         if (updateData.getDownPaymentCollateral() != null) existingLead.setDownPaymentCollateral(updateData.getDownPaymentCollateral());
 
@@ -562,13 +560,7 @@ public class LeadService {
         // Validate updated fields
         leadValidator.validateAndNormalize(existingLead);
 
-        // Duplicate check for mobileNumber if changed
-        if (existingLead.getMobileNumber() != null) {
-            Optional<Lead> dupMobile = leadRepository.findByMobileNumber(existingLead.getMobileNumber());
-            if (dupMobile.isPresent() && !dupMobile.get().getLeadId().equals(trimmedId)) {
-                throw new ValidationException("Duplicate lead detected: A lead with Mobile Number '" + existingLead.getMobileNumber() + "' already exists");
-            }
-        }
+
 
         // Duplicate check for panNumber if changed
         if (existingLead.getPanNumber() != null) {
@@ -681,8 +673,6 @@ public class LeadService {
                     lead.getDob() != null ? lead.getDob() : "",
                     lead.getAge() != null ? String.valueOf(lead.getAge()) : "",
                     lead.getCustomerType() != null ? lead.getCustomerType() : "Individual",
-                    lead.getMobileNumber() != null ? lead.getMobileNumber() : "",
-                    lead.getOtp() != null ? lead.getOtp() : "",
                     lead.getPanNumber() != null ? lead.getPanNumber() : "",
                     lead.getPanValidationStatus() != null ? lead.getPanValidationStatus() : "",
                     lead.getAadhaarNumber() != null ? lead.getAadhaarNumber() : "",
@@ -691,6 +681,7 @@ public class LeadService {
                     lead.getGender() != null ? lead.getGender() : "",
                     lead.getMaritalStatus() != null ? lead.getMaritalStatus() : "",
                     lead.getPassportNumber() != null ? lead.getPassportNumber() : "",
+                    lead.getPassportExpiryDate() != null ? lead.getPassportExpiryDate() : "",
                     lead.getDedupeStatus() != null ? lead.getDedupeStatus() : "",
                     lead.getBlacklistStatus() != null ? lead.getBlacklistStatus() : "",
                     lead.getLastName() != null ? lead.getLastName() : "",
@@ -704,7 +695,8 @@ public class LeadService {
                     lead.getTenure() != null ? String.valueOf(lead.getTenure()) : "",
                     lead.getNumberOfInstalments() != null ? String.valueOf(lead.getNumberOfInstalments()) : "",
                     lead.getEmi() != null ? String.valueOf(lead.getEmi()) : "",
-                    lead.getPropertyValue() != null ? String.valueOf(lead.getPropertyValue()) : "",
+                    lead.getInterestRate() != null ? String.valueOf(lead.getInterestRate()) : "",
+                    lead.getTotalInterest() != null ? String.valueOf(lead.getTotalInterest()) : "",
                     lead.getSecurityAmount() != null ? String.valueOf(lead.getSecurityAmount()) : "",
                     lead.getDownPaymentCollateral() != null ? lead.getDownPaymentCollateral() : "",
                     // 3. Income Profile

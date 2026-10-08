@@ -125,7 +125,33 @@ The collection includes variables and automatic test scripts:
 4. Open **`Get All Customers (Paginated)`** and click **Send**.
 5. **Expected Output**: Returns paginated list of customers belonging to HDFC Bank.
 
-### Step 7: Test Dashboard Endpoint
+### Step 7: Lead Management (Create, Get, Update, Assign, Import & Export)
+1. Select folder `Lead Management`.
+2. Open **`1. Create Lead`**:
+   - Sends payload containing Step 1 Personal Details with `passportExpiryDate` (no `mobileNumber` or `otp`), Step 2 Loan Details with `interestRate` and `totalInterest` (no `propertyValue`), plus Income Profile and Referral Details.
+   - Click **Send**.
+   - **Expected Output**: `201 Created` with generated `leadId` (e.g. `LD2026100001`) and `leadStatus: "NEW"`.
+3. Open **`2. Get Lead By ID`**:
+   - Click **Send**.
+   - **Expected Output**: `200 OK` returning complete lead details including `passportExpiryDate`, `interestRate`, and `totalInterest`.
+4. Open **`3. Get All Leads`**:
+   - Click **Send**.
+   - **Expected Output**: `200 OK` returning list of all leads.
+5. Open **`4. Update Lead`**:
+   - Updates fields (e.g. `passportExpiryDate`, `interestRate`, `totalInterest`).
+   - Click **Send**.
+   - **Expected Output**: `200 OK` returning updated lead with updated values.
+6. Open **`5. Assign Lead`**:
+   - Click **Send** to assign lead to an active Maker employee.
+   - **Expected Output**: `200 OK` with `leadStatus: "ASSIGNED"`.
+7. Open **`6. Download Sample CSV`** & **`7. Export Leads to CSV`**:
+   - Click **Send**.
+   - **Expected Output**: Downloads RFC-4180 compliant CSV matching updated columns (`Passport Expiry Date`, `Interest Rate`, `Total Interest`).
+8. Open **`8. Import Leads from CSV`**:
+   - Upload CSV file and click **Send**.
+   - **Expected Output**: `200 OK` with `CsvImportResult` showing success count and zero errors.
+
+### Step 8: Test Dashboard Endpoint
 1. Select folder `Dashboard`.
 2. Open **`Get Role-Based Dashboard`**.
 3. Click **Send**.

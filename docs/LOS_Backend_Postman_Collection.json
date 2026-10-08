@@ -729,6 +729,295 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Lead Management",
+			"item": [
+				{
+					"name": "1. Create Lead",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"customerName\": \"Sunil Verma\",\n  \"lastName\": \"Verma\",\n  \"dateOfBirth\": \"1990-05-15\",\n  \"age\": 36,\n  \"customerType\": \"Individual\",\n  \"panNumber\": \"ABCDE1234F\",\n  \"panValidationStatus\": \"VALIDATED\",\n  \"aadhaarNumber\": \"123456789012\",\n  \"aadhaarValidationStatus\": \"VALIDATED\",\n  \"residentialStatus\": \"Resident Indian\",\n  \"gender\": \"Male\",\n  \"maritalStatus\": \"Married\",\n  \"passportNumber\": \"Z1234567\",\n  \"passportExpiryDate\": \"2032-12-31\",\n  \"emailAddress\": \"sunil.verma@example.com\",\n  \"pinCode\": \"400001\",\n  \"numberOfDependents\": 2,\n  \"loanProductType\": \"Home Loan\",\n  \"loanAmount\": 5000000.00,\n  \"purposeOfLoan\": \"Apartment Purchase\",\n  \"tenure\": 240,\n  \"numberOfInstalments\": 240,\n  \"emi\": 43391.00,\n  \"interestRate\": 8.5,\n  \"totalInterest\": 5413840.00,\n  \"securityAmount\": 500000.00,\n  \"downPaymentCollateral\": \"1000000 Down Payment\",\n  \"employmentType\": \"Salaried\",\n  \"annualIncome\": 1200000.00,\n  \"designation\": \"Senior Architect\",\n  \"employerName\": \"Tata Consultancy Services\",\n  \"location\": \"Mumbai\",\n  \"state\": \"Maharashtra\",\n  \"takeHomePay\": 85000.00,\n  \"deductionsOrEmisPayable\": 12000.00,\n  \"bankName\": \"HDFC Bank\",\n  \"accountNumber\": \"50100234567890\",\n  \"accountStatementConsent\": true,\n  \"cibilLiabilityCheck\": \"780 - Clear\",\n  \"debtToIncomeRatio\": 35.5,\n  \"loanToValueRatio\": 71.4,\n  \"debtServiceCoverageRatio\": 2.8,\n  \"netDisposableIncome\": 42000.00,\n  \"sourcingChannel\": \"Branch Office\",\n  \"referralDate\": \"2026-10-01\",\n  \"lspPartnerCode\": \"LSP-1001\",\n  \"agentPartnerName\": \"Karan Kapoor\",\n  \"sourcingEmployeeId\": \"EMP102\",\n  \"sourcingEmployeeName\": \"Rahul Verma\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/leads",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"leads"
+							]
+						},
+						"description": "Creates a new Lead across 4 sections with passportExpiryDate, interestRate, totalInterest (mobileNumber, otp, propertyValue removed)."
+					},
+					"response": []
+				},
+				{
+					"name": "2. Get Lead By ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/leads/LD2026100001",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"leads",
+								"LD2026100001"
+							]
+						},
+						"description": "Retrieves complete details of a specific Lead by Lead ID."
+					},
+					"response": []
+				},
+				{
+					"name": "3. Get All Leads",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/leads",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"leads"
+							]
+						},
+						"description": "Retrieves all leads persisted in the current bank/tenant database."
+					},
+					"response": []
+				},
+				{
+					"name": "4. Update Lead",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"passportExpiryDate\": \"2035-12-31\",\n  \"interestRate\": 9.25,\n  \"totalInterest\": 6200000.00,\n  \"loanAmount\": 5500000.00,\n  \"tenure\": 240\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/leads/LD2026100001",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"leads",
+								"LD2026100001"
+							]
+						},
+						"description": "Updates editable fields of an existing Lead."
+					},
+					"response": []
+				},
+				{
+					"name": "5. Assign Lead",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"employeeId\": \"EMP102\",\n  \"assignedBy\": \"EMP101\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/leads/LD2026100001/assign",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"leads",
+								"LD2026100001",
+								"assign"
+							]
+						},
+						"description": "Assigns a Lead to an active Maker user by Admin."
+					},
+					"response": []
+				},
+				{
+					"name": "6. Download Sample CSV",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/leads/sample-csv",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"leads",
+								"sample-csv"
+							]
+						},
+						"description": "Downloads the official RFC-4180 CSV template with the updated headers."
+					},
+					"response": []
+				},
+				{
+					"name": "7. Export Leads to CSV",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/leads/export",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"leads",
+								"export"
+							]
+						},
+						"description": "Exports all leads to CSV file with updated schema."
+					},
+					"response": []
+				},
+				{
+					"name": "8. Import Leads from CSV",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": ""
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/leads/import",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"leads",
+								"import"
+							]
+						},
+						"description": "Imports leads in bulk from a CSV file matching the updated headers."
+					},
+					"response": []
+				}
+			]
 		}
 	]
 }
