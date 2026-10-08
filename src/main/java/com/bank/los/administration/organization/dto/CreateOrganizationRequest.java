@@ -1,18 +1,18 @@
 package com.bank.los.administration.organization.dto;
 
+import java.util.UUID;
+
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.UUID;
 
 @Data
 @Builder
@@ -69,7 +69,7 @@ public class CreateOrganizationRequest {
     @Schema(description = "15-digit Goods and Services Tax Identification Number (GSTIN)", example = "27AAACS1234F1Z5")
     private String gstNumber;
 
-    @NotBlank(message = "CIN is required")
+    // @NotBlank(message = "CIN is required")
     @JsonProperty("CIN")
     @JsonAlias({"cin", "Cin", "cin_number", "cinNumber"})
     @Schema(description = "Corporate Identification Number (CIN)", example = "L65190MH2004GOI148838")
